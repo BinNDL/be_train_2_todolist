@@ -63,14 +63,17 @@
                     if(data.status == 'Data Saved'){
                         console.log('Data Submitted Successfully')
     
-                        for(i=0; i<t_data.length; i++){
-                            output += "<tr><td>" + t_data[i].id +
-                                "</td><td>" + t_data[i].name +
-                                "</td><td>" + t_data[i].start_date +
-                                "</td><td>" + t_data[i].end_date +
-                                "</td><td>" + t_data[i].status +
-                                "</td><td> <input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit' data-tid=" + t_data[i].id + ">" +
-                                "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del' data-tid=" + t_data[i].id + "></td></tr>"
+                        for (var i = 0; i < t_data.length; i++) {
+                            output += "<tr>" +
+                                "<td class='text-center'>" + t_data[i].id + "</td>" +
+                                "<td class='text-center'><a href='/"+ t_data[i].id + "/'>" + t_data[i].name + "</a></td>" +
+                                "<td class='text-center'>" + t_data[i].start_date + "</td>" +
+                                "<td class='text-center'>" + t_data[i].end_date + "</td>" +
+                                "<td class='text-center'>" + t_data[i].status + "</td>" +
+                                "<td class='text-center'>" +
+                                "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + t_data[i].id + "'>" +
+                                "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + t_data[i].id + "'>" +
+                                "</td></tr>";
                         }
                         $('#tbody').html(output);
                         $('#taskid').val("");
