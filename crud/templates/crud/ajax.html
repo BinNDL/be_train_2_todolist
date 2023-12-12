@@ -1,7 +1,38 @@
 <script>
+    // Function to fetch and display all tasks
+    function fetchAllTasks() {
+        output=""
+        $.ajax({
+            url: "{% url 'home' %}", 
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                var tasks = JSON.parse(data.tasks);
+                console.log(tasks)
+                $("#tbody").empty();
+                for (var i = 0; i < tasks.length; i++){
+                    output += "<tr>" +
+                        "<td class='text-center'>" + tasks[i].pk + "</td>" +
+                        "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
+                        "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
+                        "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
+                        "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
+                        "<td class='text-center'>" +
+                        "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
+                        "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
+                        "</td></tr>";
+                };
+                $('#tbody').html(output);
+            },
+            error: function (error) {
+                console.error("Error fetching tasks:", error);
+            }
+        });
+    }
+
     // Display error message on focus
     $('input, select').focus(function () {
-        $(this).siblings('.error-message').remove(); // Remove existing error messages
+        $(this).siblings('.error-message').remove();
     });
     
     // Display error message for clean_end_date on blur
@@ -9,7 +40,6 @@
         let start_date = $('#startdateid').val();
         let end_date = $(this).val();
     
-        // Additional validation logic for clean_end_date
         if (start_date && end_date && start_date > end_date) {
             $(this).after('<span class="text-danger error-message">End date must be after the start date.</span>');
         }
@@ -20,7 +50,6 @@
         let end_date = $('#enddateid').val();
         let start_date = $(this).val();
     
-        // Additional validation logic for clean_start_date
         if (start_date && end_date && start_date > end_date) {
             $(this).after('<span class="text-danger error-message">Start date must be before the end date.</span>');
         }
@@ -50,7 +79,11 @@
             $('#enddateid').after('<span class="text-danger error-message">End Date is required.</span>');
             return;
         }
-        else if(name!="" && start_date!="" && end_date!=""){
+        if (status == "") {
+            $('#statusid').after('<span class="text-danger error-message">Status is required.</span>');
+            return;
+        }
+        else if(name!="" && start_date!="" && end_date!="" && status!=""){
             task_data = {taskid:tid, name:name, start_date:start_date, end_date:end_date, status:status};
     
             $.ajax({
@@ -176,32 +209,44 @@
     $("#filter-status select").on("change", function () {
         output = "";
         var status = $(this).val();
-        console.log(status)
         $.ajax({
             url: "{% url 'filter_tasks' %}",
             method: "GET",
             data: { status: status },
             success: function (data) {
                 var tasks = JSON.parse(data.tasks);
-
+                console.log(tasks)
                 $("#tbody").empty();
-                for (var i = 0; i < tasks.length; i++){
-                    output += "<tr>" +
-                        "<td class='text-center'>" + tasks[i].pk + "</td>" +
-                        "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
-                        "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
-                        "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
-                        "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
-                        "<td class='text-center'>" +
-                        "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
-                        "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
-                        "</td></tr>";
-                };
-                $('#tbody').html(output);
+                if(status === ""){
+                    fetchAllTasks();
+                } else {
+                    for (var i = 0; i < tasks.length; i++){
+                        output += "<tr>" +
+                            "<td class='text-center'>" + tasks[i].pk + "</td>" +
+                            "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
+                            "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
+                            "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
+                            "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
+                            "<td class='text-center'>" +
+                            "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
+                            "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
+                            "</td></tr>";
+                    };
+                    $('#tbody').html(output);
+                }
             },
             error: function () {
                 console.log("Error in AJAX request");
             }
         });
+    });
+
+
+    // Reset filters and search
+    $("#reset-filters").click(function () {
+        $("#search-input").val("");
+        $("#filter-status select").val("");
+        $("#search-input").trigger("change");
+        $("#filter-status select").trigger("change");
     });
 </script>

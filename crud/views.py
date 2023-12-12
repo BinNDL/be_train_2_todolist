@@ -11,7 +11,11 @@ def home(request):
     form = TaskForm()
     tasks = Task.objects.all()
     context = {'form': form, 'tasks': tasks}
-    return render(request, 'crud/home.html', context)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        task_data = serialize('json', tasks)
+        return JsonResponse({'tasks': task_data}, safe=False)
+    else:
+        return render(request, 'crud/home.html', context)
 
 
 def task_detail(request, id):

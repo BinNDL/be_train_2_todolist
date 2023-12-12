@@ -27,15 +27,18 @@
             <div class="col-sm-8">
                 <h4 class="text-center alert alert-info">List of Tasks</h4>
                 <div class="row mb-2">
-                    <div class="col-md-7 mx-auto">
+                    <div class="col-md-6 mx-auto">
                         <div class="input-group rounded">
                             <input class="form-control border" type="search" placeholder="Search" id="search-input">
                         </div>
                     </div>
-                    <div class="col-md-5 mx-auto">
+                    <div class="col-md-4 mx-auto">
                         <div class="input-group rounded" id="filter-status">
                             {{ form.status }}
                         </div>
+                    </div>
+                    <div class="col-md-2 mx-auto">
+                        <button class="btn btn-secondary btn-block" id="reset-filters">Reset Filters</button>
                     </div>
                 </div>
                 <table class="table table-hover">
