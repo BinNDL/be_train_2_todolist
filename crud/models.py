@@ -15,7 +15,7 @@ class Task(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default='Scheduled'
+        max_length=20, choices=STATUS_CHOICES
     )
 
     class Meta:

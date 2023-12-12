@@ -137,4 +137,71 @@
             },
         })
     })
-    </script>
+
+
+    // Live search
+    $("#search-input").on("input", function () {
+        output = "";
+        var query = $(this).val().toLowerCase();
+        $.ajax({
+            url: "{% url 'search_tasks' %}",
+            method: "GET",
+            data: { q: query },
+            success: function (data) {
+                var tasks = JSON.parse(data.tasks);
+                console.log(tasks)
+                $("#tbody").empty();
+                for (var i = 0; i < tasks.length; i++){
+                    output += "<tr>" +
+                        "<td class='text-center'>" + tasks[i].pk + "</td>" +
+                        "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
+                        "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
+                        "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
+                        "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
+                        "<td class='text-center'>" +
+                        "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
+                        "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
+                        "</td></tr>";
+                };
+                $('#tbody').html(output);
+            },
+            error: function () {
+                console.log("Error in AJAX request");
+            }
+        });
+    });
+
+
+    //Filter
+    $("#filter-status select").on("change", function () {
+        output = "";
+        var status = $(this).val();
+        console.log(status)
+        $.ajax({
+            url: "{% url 'filter_tasks' %}",
+            method: "GET",
+            data: { status: status },
+            success: function (data) {
+                var tasks = JSON.parse(data.tasks);
+
+                $("#tbody").empty();
+                for (var i = 0; i < tasks.length; i++){
+                    output += "<tr>" +
+                        "<td class='text-center'>" + tasks[i].pk + "</td>" +
+                        "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
+                        "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
+                        "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
+                        "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
+                        "<td class='text-center'>" +
+                        "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
+                        "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
+                        "</td></tr>";
+                };
+                $('#tbody').html(output);
+            },
+            error: function () {
+                console.log("Error in AJAX request");
+            }
+        });
+    });
+</script>

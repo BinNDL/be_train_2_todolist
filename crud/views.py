@@ -3,6 +3,8 @@ from django.shortcuts import render
 from .forms import TaskForm
 from .models import Task
 from django.views.decorators.csrf import csrf_exempt
+from django.core.serializers import serialize
+from django.db.models import Q
 
 
 def home(request):
@@ -63,3 +65,24 @@ def update_task(request):
         task_data = {'id': task.id, 'name': task.name, 'start_date': task.start_date,
                      'end_date': task.end_date, 'status': task.status}
         return JsonResponse(task_data)
+
+
+def search_tasks(request):
+    query = request.GET.get('q', '')
+    tasks = Task.objects.filter(
+        Q(name__icontains=query) |
+        Q(status__icontains=query)
+    )
+
+    serialized_tasks = serialize('json', tasks)
+
+    return JsonResponse({'tasks': serialized_tasks}, safe=False)
+
+
+def filter_tasks(request):
+    status = request.GET.get('status', '')
+    tasks = Task.objects.filter(status=status)
+
+    serialized_tasks = serialize('json', tasks)
+
+    return JsonResponse({'tasks': serialized_tasks}, safe=False)
