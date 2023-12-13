@@ -57,8 +57,8 @@
                         <tr>
                             <td class="text-center">{{task.id}}</td>
                             <td class="text-center"><a href="{% url 'task_detail' task.pk %}">{{ task.name }}</a></td>
-                            <td class="text-center">{{task.start_date}}</td>
-                            <td class="text-center">{{task.end_date}}</td>
+                            <td class="text-center">{{task.start_date|date:"Y-m-d" }}</td>
+                            <td class="text-center">{{task.end_date|date:"Y-m-d" }}</td>
                             <td class="text-center">{{task.status}}</td>
                             <td class="text-center">
                                 <input type="button" value="Edit" class="btn btn-warning btn-sm btn-edit px-3" data-tid="{{task.id}}">

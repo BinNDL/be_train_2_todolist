@@ -71,26 +71,6 @@ def update_task(request):
         return JsonResponse(task_data)
 
 
-def search_tasks(request):
-    query = request.GET.get('q', '')
-    tasks = Task.objects.filter(
-        Q(name__icontains=query)
-    )
-
-    serialized_tasks = serialize('json', tasks)
-
-    return JsonResponse({'tasks': serialized_tasks}, safe=False)
-
-
-def filter_tasks(request):
-    status = request.GET.get('status', '')
-    tasks = Task.objects.filter(status=status)
-
-    serialized_tasks = serialize('json', tasks)
-
-    return JsonResponse({'tasks': serialized_tasks}, safe=False)
-
-
 def search_and_filter_tasks(request):
     query = request.GET.get('q', '')
     status = request.GET.get('status', '')
