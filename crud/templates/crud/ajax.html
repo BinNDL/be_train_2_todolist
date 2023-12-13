@@ -1,11 +1,16 @@
 <script>
-    // Function to fetch and display all tasks
+    // Fetch and display all tasks
     function fetchAllTasks() {
         output=""
+        var searchQuery = $('#search-input').val();
+        var statusFilter = $('#filter-status select').val();
         $.ajax({
-            url: "{% url 'home' %}", 
-            method: "GET",
-            dataType: "json",
+            url: '/search-and-filter/',
+            method: 'GET',
+            data: {
+                q: searchQuery,
+                status: statusFilter
+            },
             success: function (data) {
                 var tasks = JSON.parse(data.tasks);
                 console.log(tasks)
@@ -25,38 +30,11 @@
                 $('#tbody').html(output);
             },
             error: function (error) {
-                console.error("Error fetching tasks:", error);
+                console.log('Error:', error);
             }
         });
+        
     }
-
-    // Display error message on focus
-    $('input, select').focus(function () {
-        $(this).siblings('.error-message').remove();
-    });
-    
-    // Display error message for clean_end_date on blur
-    $('#enddateid').blur(function () {
-        let start_date = $('#startdateid').val();
-        let end_date = $(this).val();
-    
-        if (start_date && end_date && start_date > end_date) {
-            $(this).after('<span class="text-danger error-message">End date must be after the start date.</span>');
-        }
-    });
-    
-    // Display error message for clean_start_date on blur
-    $('#startdateid').blur(function () {
-        let end_date = $('#enddateid').val();
-        let start_date = $(this).val();
-    
-        if (start_date && end_date && start_date > end_date) {
-            $(this).after('<span class="text-danger error-message">Start date must be before the end date.</span>');
-        }
-        if (start_date && start_date < new Date().toISOString().split('T')[0]) {
-            $(this).after('<span class="text-danger error-message">Start date cannot be in the past.</span>');
-        }
-    });
     
     // Save data
     $("#btnsave").click(function(){
@@ -147,7 +125,6 @@
         })
     })
     
-    
     // Edit
     $('#tbody').on("click", ".btn-edit", function(){
         let id = $(this).attr("data-tid");
@@ -171,82 +148,41 @@
         })
     })
 
-
-    // Live search
-    $("#search-input").on("input", function () {
-        output = "";
-        var query = $(this).val().toLowerCase();
-        $.ajax({
-            url: "{% url 'search_tasks' %}",
-            method: "GET",
-            data: { q: query },
-            success: function (data) {
-                var tasks = JSON.parse(data.tasks);
-                console.log(tasks)
-                $("#tbody").empty();
-                for (var i = 0; i < tasks.length; i++){
-                    output += "<tr>" +
-                        "<td class='text-center'>" + tasks[i].pk + "</td>" +
-                        "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
-                        "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
-                        "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
-                        "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
-                        "<td class='text-center'>" +
-                        "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
-                        "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
-                        "</td></tr>";
-                };
-                $('#tbody').html(output);
-            },
-            error: function () {
-                console.log("Error in AJAX request");
-            }
-        });
-    });
-
-
-    //Filter
-    $("#filter-status select").on("change", function () {
-        output = "";
-        var status = $(this).val();
-        $.ajax({
-            url: "{% url 'filter_tasks' %}",
-            method: "GET",
-            data: { status: status },
-            success: function (data) {
-                var tasks = JSON.parse(data.tasks);
-                console.log(tasks)
-                $("#tbody").empty();
-                if(status === ""){
-                    fetchAllTasks();
-                } else {
-                    for (var i = 0; i < tasks.length; i++){
-                        output += "<tr>" +
-                            "<td class='text-center'>" + tasks[i].pk + "</td>" +
-                            "<td class='text-center'><a href='/"+ tasks[i].fields.id + "/'>" + tasks[i].fields.name + "</a></td>" +
-                            "<td class='text-center'>" + tasks[i].fields.start_date + "</td>" +
-                            "<td class='text-center'>" + tasks[i].fields.end_date + "</td>" +
-                            "<td class='text-center'>" + tasks[i].fields.status + "</td>" +
-                            "<td class='text-center'>" +
-                            "<input type='button' value='Edit' class='btn btn-warning btn-sm btn-edit px-3' data-tid='" + tasks[i].pk + "'>" +
-                            "<input type='button' value='Delete' class='btn btn-danger btn-sm btn-del px-3' data-tid='" + tasks[i].pk + "'>" +
-                            "</td></tr>";
-                    };
-                    $('#tbody').html(output);
-                }
-            },
-            error: function () {
-                console.log("Error in AJAX request");
-            }
-        });
-    });
-
+    // Live search and filter by status
+    $('#search-input, #filter-status select').on('input', fetchAllTasks);
 
     // Reset filters and search
     $("#reset-filters").click(function () {
         $("#search-input").val("");
         $("#filter-status select").val("");
-        $("#search-input").trigger("change");
-        $("#filter-status select").trigger("change");
+        fetchAllTasks()
+    });
+
+    // Display error message on focus
+    $('input, select').focus(function () {
+        $(this).siblings('.error-message').remove();
+    });
+    
+    // Display error message for clean_end_date on blur
+    $('#enddateid').blur(function () {
+        let start_date = $('#startdateid').val();
+        let end_date = $(this).val();
+    
+        if (start_date && end_date && start_date > end_date) {
+            $(this).after('<span class="text-danger error-message">End date must be after the start date.</span>');
+        }
+    });
+    
+    // Display error message for clean_start_date on blur
+    $('#startdateid').blur(function () {
+        let end_date = $('#enddateid').val();
+        let start_date = $(this).val();
+    
+        if (start_date && end_date && start_date > end_date) {
+            $(this).after('<span class="text-danger error-message">Start date must be before the end date.</span>');
+        }
+        if (start_date && start_date < new Date().toISOString().split('T')[0]) {
+            $(this).after('<span class="text-danger error-message">Start date cannot be in the past.</span>');
+        }
     });
 </script>
